@@ -1,1 +1,1 @@
-# docker-compose-lep-stack
+# docker-compose-lemp-stack
