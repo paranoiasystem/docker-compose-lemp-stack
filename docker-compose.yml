@@ -7,10 +7,10 @@ services:
   nginx:
     image: nginx
     ports:
-      - "8080:80"
+      - "80:80"
     volumes:
-      - ./app/symfony_project:/var/www/app
-      - ./nginx/default_symfony.conf:/etc/nginx/conf.d/default.conf
+      - ./www:/var/www
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
     depends_on:
       - php
     networks: 
@@ -19,11 +19,40 @@ services:
   php:
     build: ./php
     volumes:
-      - ./app/symfony_project:/var/www/app
+      - ./www:/var/www
       - ./php/starter.sh:/usr/local/bin/starter.sh
     ports:
       - "9000:9000"
     command:
       - starter.sh
+    depends_on:
+      - mariadb
     networks: 
       - MYNETWORK
+
+  mariadb:
+    image: mariadb
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=q1w2e3r4t5y6
+      - MYSQL_DATABASE=mydb
+    volumes:
+      - ./database:/var/lib/mysql
+    networks: 
+      - MYNETWORK
+
+  phpmyadmin:
+      image: phpmyadmin/phpmyadmin
+      container_name: phpmyadmin
+      environment:
+          - PMA_ARBITRARY=1
+          - PMA_HOST=db
+      ports:
+          - "8080:80"
+      volumes:
+          - /sessions
+      depends_on:
+        - mariadb
+      networks: 
+        - MYNETWORK
